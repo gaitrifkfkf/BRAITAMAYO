@@ -1,0 +1,648 @@
+<html><head><base href="html">
+<style>
+:root {
+  --cottage-pink: #ffd1dc;
+  --cottage-green: #94b285;
+  --cottage-brown: #8b4513;
+  --cottage-cream: #fff8dc;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--cottage-cream);
+  font-family: 'Courier New', monospace;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5zm0 20c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5z' fill='%23ffd1dc' fill-opacity='0.2'/%3E%3C/svg%3E");
+}
+
+#game-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  border: 10px solid var(--cottage-brown);
+  border-radius: 15px;
+  background: var(--cottage-green);
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+#game-board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.snake-segment {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--cottage-pink);
+  border: 2px solid var(--cottage-brown);
+  border-radius: 50%;
+}
+
+.food {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.food svg {
+  width: 100%;
+  height: 100%;
+}
+
+#score {
+  margin-top: 20px;
+  font-size: 24px;
+  color: var(--cottage-brown);
+}
+
+#start-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background: var(--cottage-pink);
+  border: 3px solid var(--cottage-brown);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+#start-btn:hover {
+  transform: scale(1.1);
+}
+
+#countdown {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 72px;
+  color: var(--cottage-brown);
+  font-family: 'Courier New', monospace;
+  text-shadow: 2px 2px var(--cottage-cream);
+  opacity: 0;
+  pointer-events: none;
+  animation: fadeInOut 1s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+
+.mode-select {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.mode-btn {
+  padding: 10px 20px;
+  font-size: 18px;
+  background: var(--cottage-cream);
+  border: 3px solid var(--cottage-brown);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.mode-btn.active {
+  background: var(--cottage-pink);
+  transform: scale(1.1);
+}
+
+.mode-btn:hover {
+  transform: scale(1.1);
+}
+
+.speed-control {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.speed-btn {
+  padding: 8px 16px;
+  font-size: 16px;
+  background: var(--cottage-cream);
+  border: 3px solid var(--cottage-brown);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.speed-btn.active {
+  background: var(--cottage-pink);
+  transform: scale(1.1);
+}
+
+.speed-btn:hover {
+  transform: scale(1.1);
+}
+
+.campaign-level {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: var(--cottage-brown);
+  font-size: 18px;
+}
+
+.quit-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background: var(--cottage-pink);
+  border: 2px solid var(--cottage-brown);
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+}
+
+.quit-btn:hover {
+  transform: scale(1.1);
+}
+
+.level-board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--cottage-cream);
+  border: 5px solid var(--cottage-brown);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  display: none;
+  z-index: 10;
+  width: 300px;
+}
+
+.level-board h2 {
+  color: var(--cottage-brown);
+  margin-bottom: 15px;
+}
+
+.level-info {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 5px;
+  border: 2px solid var(--cottage-pink);
+  border-radius: 8px;
+  background: white;
+}
+
+.level-info.current {
+  background: var(--cottage-pink);
+  transform: scale(1.05);
+}
+
+.continue-btn {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: var(--cottage-pink);
+  border: 3px solid var(--cottage-brown);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.continue-btn:hover {
+  transform: scale(1.1);
+}
+
+.level-status {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.level-status.locked {
+  background: #ccc;
+}
+
+.level-status.unlocked {
+  background: var(--cottage-green);
+}
+
+.level-status.completed {
+  background: var(--cottage-pink);
+}
+
+.scoring-board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--cottage-cream);
+  border: 5px solid var(--cottage-brown);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  display: none;
+  z-index: 10;
+  width: 300px;
+}
+
+.scoring-board h2 {
+  color: var(--cottage-brown);
+  margin-bottom: 15px;
+}
+
+.score-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.score-entry {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 8px;
+  border: 2px solid var(--cottage-pink);
+  border-radius: 8px;
+  background: white;
+}
+
+.score-entry.new-score {
+  background: var(--cottage-pink);
+  transform: scale(1.05);
+}
+</style>
+</head>
+<body>
+<div id="game-container">
+  <div id="game-board"></div>
+  <div id="countdown"></div>
+  <div class="campaign-level"></div>
+  <button class="quit-btn">Quit</button>
+</div>
+<div id="score">Score: 0</div>
+<div class="mode-select">
+  <button class="mode-btn active" data-mode="classic">Classic</button>
+  <button class="mode-btn" data-mode="campaign">Campaign</button>
+</div>
+<div class="speed-control">
+  <button class="speed-btn active" data-speed="150">Normal</button>
+  <button class="speed-btn" data-speed="100">Fast</button>
+  <button class="speed-btn" data-speed="50">Ultra</button>
+</div>
+<button id="start-btn">Start Game</button>
+<div class="level-board">
+  <h2>Campaign Progress</h2>
+  <div class="level-list"></div>
+  <button class="continue-btn">Continue</button>
+</div>
+<div class="scoring-board">
+  <h2>High Scores</h2>
+  <div class="score-list"></div>
+  <button class="continue-btn">Continue</button>
+</div>
+
+<script>
+class SnakeGame {
+  constructor() {
+    this.boardSize = 20; // 20x20 grid
+    this.cellSize = 20;
+    this.snake = [{x: 10, y: 10}];
+    this.direction = {x: 1, y: 0}; // Start moving right
+    this.food = null;
+    this.score = 0;
+    this.gameInterval = null;
+    this.gameBoard = document.getElementById('game-board');
+    this.scoreElement = document.getElementById('score');
+    this.countdownElement = document.getElementById('countdown');
+    this.isGameOver = true;
+    this.gameMode = 'classic';
+    this.campaignLevel = 1;
+    this.gameSpeed = 150;
+    this.campaignLevelElement = document.querySelector('.campaign-level');
+    this.quitButton = document.querySelector('.quit-btn');
+    this.levelBoard = document.querySelector('.level-board');
+    this.scoringBoard = document.querySelector('.scoring-board');
+    this.highScores = {
+      classic: this.loadHighScores('classic'),
+      campaign: this.loadHighScores('campaign')
+    };
+    this.setupLevelBoard();
+    this.draw(); // Draw initial snake
+    this.setupModeSelection();
+    this.setupQuitButton();
+    this.setupSpeedControl();
+    const scoringBoardContinueBtn = this.scoringBoard.querySelector('.continue-btn');
+    scoringBoardContinueBtn.addEventListener('click', () => {
+      this.scoringBoard.style.display = 'none';
+    });
+  }
+
+  loadHighScores(mode) {
+    const scores = localStorage.getItem(`snakeHighScores_${mode}`);
+    return scores ? JSON.parse(scores) : [];
+  }
+
+  saveHighScore() {
+    const scores = this.highScores[this.gameMode];
+    const newScore = {
+      score: this.score,
+      date: new Date().toLocaleDateString(),
+      level: this.gameMode === 'campaign' ? this.campaignLevel : undefined
+    };
+    
+    scores.push(newScore);
+    scores.sort((a, b) => b.score - a.score);
+    scores.splice(10);
+    
+    localStorage.setItem(`snakeHighScores_${this.gameMode}`, JSON.stringify(scores));
+    return scores.findIndex(score => score === newScore);
+  }
+
+  showHighScores(newScoreIndex = -1) {
+    const scoreList = this.scoringBoard.querySelector('.score-list');
+    scoreList.innerHTML = '';
+    
+    const scores = this.highScores[this.gameMode];
+    scores.forEach((score, index) => {
+      const entry = document.createElement('div');
+      entry.className = `score-entry${index === newScoreIndex ? ' new-score' : ''}`;
+      entry.innerHTML = `
+        <span>#${index + 1}</span>
+        <span>${score.score} points${score.level ? ` (Level ${score.level})` : ''}</span>
+        <span>${score.date}</span>
+      `;
+      scoreList.appendChild(entry);
+    });
+    
+    this.scoringBoard.style.display = 'block';
+  }
+
+  setupLevelBoard() {
+    const levelList = this.levelBoard.querySelector('.level-list');
+    for (let i = 1; i <= 10; i++) {
+      const levelInfo = document.createElement('div');
+      levelInfo.className = 'level-info' + (i === 1 ? ' current' : '');
+      levelInfo.innerHTML = `
+        <span>Level ${i}</span>
+        <div>Speed: ${Math.max(150 - (i - 1) * 10, 50)}ms
+        <span class="level-status ${i === 1 ? 'unlocked' : 'locked'}"></span></div>
+      `;
+      levelList.appendChild(levelInfo);
+    }
+
+    const continueBtn = this.levelBoard.querySelector('.continue-btn');
+    continueBtn.addEventListener('click', () => {
+      this.levelBoard.style.display = 'none';
+      this.start();
+    });
+  }
+
+  setupModeSelection() {
+    const modeButtons = document.querySelectorAll('.mode-btn');
+    modeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.gameMode = btn.dataset.mode;
+        if (this.gameMode === 'campaign') {
+          this.campaignLevel = 1;
+          this.updateCampaignLevel();
+        } else {
+          this.campaignLevelElement.textContent = '';
+        }
+      });
+    });
+  }
+
+  setupSpeedControl() {
+    const speedButtons = document.querySelectorAll('.speed-btn');
+    speedButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (this.gameMode === 'classic') {
+          speedButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.gameSpeed = parseInt(btn.dataset.speed);
+          if (!this.isGameOver) {
+            clearInterval(this.gameInterval);
+            this.gameInterval = setInterval(() => this.update(), this.gameSpeed);
+          }
+        }
+      });
+    });
+  }
+
+  setupQuitButton() {
+    this.quitButton.addEventListener('click', () => {
+      this.gameOver(true);
+    });
+  }
+
+  async start() {
+    if (!this.isGameOver) return;
+    
+    if (this.gameMode === 'campaign' && this.campaignLevel === 1) {
+      this.levelBoard.style.display = 'block';
+      this.updateLevelBoard();
+      return;
+    }
+    
+    this.quitButton.style.display = 'block';
+    await this.startCountdown();
+    
+    this.snake = [{x: 10, y: 10}];
+    this.direction = {x: 1, y: 0}; // Start moving right
+    this.score = 0;
+    this.isGameOver = false;
+    this.scoreElement.textContent = `Score: ${this.score}`;
+    
+    if (this.gameMode === 'campaign') {
+      this.updateCampaignLevel();
+    }
+
+    this.gameBoard.innerHTML = '';
+    
+    this.createFood();
+    
+    this.draw();
+    
+    const speed = this.gameMode === 'campaign' ? 
+      Math.max(150 - (this.campaignLevel - 1) * 10, 50) : this.gameSpeed;
+    
+    this.gameInterval = setInterval(() => this.update(), speed);
+    
+    document.addEventListener('keydown', this.handleKeyPress.bind(this));
+  }
+
+  updateLevelBoard() {
+    const levelInfos = this.levelBoard.querySelectorAll('.level-info');
+    levelInfos.forEach((info, index) => {
+      const level = index + 1;
+      info.classList.remove('current');
+      const status = info.querySelector('.level-status');
+      status.classList.remove('locked', 'unlocked', 'completed');
+      
+      if (level < this.campaignLevel) {
+        status.classList.add('completed');
+      } else if (level === this.campaignLevel) {
+        info.classList.add('current');
+        status.classList.add('unlocked');
+      } else {
+        status.classList.add('locked');
+      }
+    });
+  }
+
+  startCountdown() {
+    return new Promise(resolve => {
+      let count = 3;
+      const countInterval = setInterval(() => {
+        this.countdownElement.textContent = count;
+        this.countdownElement.style.opacity = '0';
+        this.countdownElement.style.animation = 'none';
+        void this.countdownElement.offsetWidth;
+        this.countdownElement.style.animation = 'fadeInOut 1s ease-in-out';
+        
+        count--;
+        if (count < 0) {
+          clearInterval(countInterval);
+          this.countdownElement.textContent = '';
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+
+  createFood() {
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * this.boardSize);
+      y = Math.floor(Math.random() * this.boardSize);
+    } while (this.snake.some(segment => segment.x === x && segment.y === y));
+
+    this.food = {x, y};
+    const foodElement = document.createElement('div');
+    foodElement.className = 'food';
+    foodElement.style.left = `${x * this.cellSize}px`;
+    foodElement.style.top = `${y * this.cellSize}px`;
+    foodElement.innerHTML = `
+      <svg viewBox="0 0 24 24">
+        <path fill="#ff6b6b" d="M12,2C6.48,2,2,6.48,2,12c0,5.52,4.48,10,10,10s10-4.48,10-10C22,6.48,17.52,2,12,2z"/>
+        <path fill="#45b7af" d="M12,7c-0.55,0-1,0.45-1,1v1c0,0.55,0.45,1,1,1s1-0.45,1-1V8C13,7.45,12.55,7,12,7z"/>
+      </svg>`;
+    this.gameBoard.appendChild(foodElement);
+  }
+
+  updateCampaignLevel() {
+    this.campaignLevelElement.textContent = `Level ${this.campaignLevel}`;
+  }
+
+  update() {
+    const head = {...this.snake[0]};
+    head.x += this.direction.x;
+    head.y += this.direction.y;
+
+    if (
+      head.x < 0 || head.x >= this.boardSize ||
+      head.y < 0 || head.y >= this.boardSize ||
+      this.snake.some(segment => segment.x === head.x && segment.y === head.y)
+    ) {
+      this.gameOver();
+      return;
+    }
+
+    this.snake.unshift(head);
+
+    if (head.x === this.food.x && head.y === this.food.y) {
+      this.score += 10;
+      this.scoreElement.textContent = `Score: ${this.score}`;
+      
+      if (this.gameMode === 'campaign' && this.score % 50 === 0) {
+        this.campaignLevel++;
+        this.updateCampaignLevel();
+        clearInterval(this.gameInterval);
+        const newSpeed = Math.max(150 - (this.campaignLevel - 1) * 10, 50);
+        this.gameInterval = setInterval(() => this.update(), newSpeed);
+      }
+      
+      this.gameBoard.removeChild(this.gameBoard.querySelector('.food'));
+      this.createFood();
+    } else {
+      this.snake.pop();
+    }
+
+    this.draw();
+  }
+
+  draw() {
+    const segments = this.gameBoard.getElementsByClassName('snake-segment');
+    while (segments.length > 0) {
+      segments[0].remove();
+    }
+
+    this.snake.forEach((segment, index) => {
+      const element = document.createElement('div');
+      element.className = 'snake-segment';
+      element.style.left = `${segment.x * this.cellSize}px`;
+      element.style.top = `${segment.y * this.cellSize}px`;
+      element.style.transform = `scale(${1 - index * 0.02})`;
+      this.gameBoard.appendChild(element);
+    });
+  }
+
+  handleKeyPress(event) {
+    const keyActions = {
+      'ArrowUp': () => this.direction.y !== 1 && {x: 0, y: -1},
+      'ArrowDown': () => this.direction.y !== -1 && {x: 0, y: 1},
+      'ArrowLeft': () => this.direction.x !== 1 && {x: -1, y: 0},
+      'ArrowRight': () => this.direction.x !== -1 && {x: 1, y: 0}
+    };
+
+    const action = keyActions[event.key];
+    if (action) {
+      const newDirection = action();
+      if (newDirection) {
+        this.direction = newDirection;
+      }
+    }
+  }
+
+  gameOver(quit = false) {
+    clearInterval(this.gameInterval);
+    this.isGameOver = true;
+    this.quitButton.style.display = 'none';
+    
+    if (!quit) {
+      const newScoreIndex = this.saveHighScore();
+      
+      if (this.gameMode === 'campaign') {
+        alert(`Game Over!\nFinal Level: ${this.campaignLevel}\nScore: ${this.score}`);
+        this.updateLevelBoard();
+        this.levelBoard.style.display = 'block';
+      } else {
+        alert(`Game Over!\nScore: ${this.score}`);
+      }
+      
+      this.showHighScores(newScoreIndex);
+    }
+    
+    this.campaignLevel = 1;
+    if (this.gameMode === 'campaign') {
+      this.updateCampaignLevel();
+    }
+  }
+}
+
+const game = new SnakeGame();
+document.getElementById('start-btn').addEventListener('click', () => game.start());
+</script>
+</body></html>
